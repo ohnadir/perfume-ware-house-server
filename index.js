@@ -21,6 +21,7 @@ async function run() {
     try {
         await client.connect();
         const perfumeCollection = client.db("perfumeWareHouse").collection('perfume');
+        const uploadCollection = client.db("perfumeWareHouse").collection('upload');
         app.get('/perfume', async (req, res) => {
             const query = {}
             const cursor = perfumeCollection.find(query);
@@ -68,11 +69,21 @@ async function run() {
         });
 
         // insert item 
-        app.post('/perfume', async (req, res) => {
+        app.post('/upload', async (req, res) => {
             const newItem = req.body;
-            const result = await perfumeCollection.insertOne(newItem);
-            res.send(result);
+            const tokenInfo = req.headers.authorization;
+            const [email, accessToken] = tokenInfo.split(" ")
+            const decoded = tokenVerify(accessToken)
+            console.log(decoded);
+            if (email === decoded.email) {
+                const result = await uploadCollection.insertOne(newItem);
+                res.send({success:"upload SuccessFully"});
+            } else {
+                res.send({ success: 'UnAuthorized Access' })
+            }
+            
         })
+        
     }
     finally {
         
@@ -89,3 +100,19 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log("Listening To port", port);
 })
+
+
+// verify token function
+function tokenVerify(token) {
+    let email;
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            email = 'Invalid email'
+        }
+        if (decoded) {
+            console.log(decoded)
+            email = decoded
+        }
+    });
+    return email;
+}
