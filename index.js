@@ -3,6 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const res = require('express/lib/response');
+const { json } = require('express/lib/response');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -74,7 +75,6 @@ async function run() {
             const tokenInfo = req.headers.authorization;
             const [email, accessToken] = tokenInfo.split(" ")
             const decoded = tokenVerify(accessToken)
-            console.log(decoded);
             if (email === decoded.email) {
                 const result = await uploadCollection.insertOne(newItem);
                 res.send({success:"upload SuccessFully"});
@@ -83,7 +83,18 @@ async function run() {
             }
             
         })
-        
+        app.get("/upload", async (req, res) => {
+            const tokenInfo = req.headers.authorization;
+            const [email, accessToken] =JSON.parse(Buffer.from(tokenInfo.split('.')[1], 'base64').toString());
+            // const [email, accessToken] = json.parse(tokenInfo.split(" "));
+            const decoded = tokenVerify(accessToken);
+            if (email === decoded.email) {
+                const uploadProducts = await uploadCollection.find({}).toArray();
+                res.send(uploadProducts);
+            } else {
+                res.send({ success: 'UnAuthorized Access' })
+            }
+        })
     }
     finally {
         
@@ -110,7 +121,6 @@ function tokenVerify(token) {
             email = 'Invalid email'
         }
         if (decoded) {
-            console.log(decoded)
             email = decoded
         }
     });
