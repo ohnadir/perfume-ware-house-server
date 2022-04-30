@@ -47,19 +47,7 @@ async function run() {
         });
         
         // update single item
-        app.put('/perfume/:id', async (req, res) => {
-            const id = req.params.id;
-            const updateUser = req.body;
-            const filter = { _id: ObjectId(id) };
-            const option = { upsert: true}
-            const updatedDoc = {
-                $set: {
-                    stock: updateUser.stock
-                }
-            }
-            const result = await perfumeCollection.updateOne(filter, updatedDoc, option);
-            res.send(result);
-        });
+        
 
         // delete one item
         app.delete('/perfume/:id', async (req, res) => {
@@ -83,10 +71,10 @@ async function run() {
             }
             
         })
-        app.get("/upload", async (req, res) => {
+        /* app.get("/upload", async (req, res) => {
             const tokenInfo = req.headers.authorization;
-            const [email, accessToken] =JSON.parse(Buffer.from(tokenInfo.split('.')[1], 'base64').toString());
-            // const [email, accessToken] = json.parse(tokenInfo.split(" "));
+            // const [email, accessToken] =JSON.parse(Buffer.from(tokenInfo.split(' '), 'base64').toString());
+            const [email, accessToken] = json.parse(tokenInfo.split(" "));
             const decoded = tokenVerify(accessToken);
             if (email === decoded.email) {
                 const uploadProducts = await uploadCollection.find({}).toArray();
@@ -94,7 +82,7 @@ async function run() {
             } else {
                 res.send({ success: 'UnAuthorized Access' })
             }
-        })
+        }) */
     }
     finally {
         
