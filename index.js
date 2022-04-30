@@ -84,18 +84,13 @@ async function run() {
             }
             
         })
-        /* app.get("/upload", async (req, res) => {
-            const tokenInfo = req.headers.authorization;
-            // const [email, accessToken] =JSON.parse(Buffer.from(tokenInfo.split(' '), 'base64').toString());
-            const [email, accessToken] = json.parse(tokenInfo.split(" "));
-            const decoded = tokenVerify(accessToken);
-            if (email === decoded.email) {
-                const uploadProducts = await uploadCollection.find({}).toArray();
-                res.send(uploadProducts);
-            } else {
-                res.send({ success: 'UnAuthorized Access' })
-            }
-        }) */
+        app.get("/upload", async (req, res) => {
+            const email = req.query.email;
+            const query = {email:email}
+            const cursor = uploadCollection.find(query);
+            const uploadItem = await cursor.toArray();
+            res.send(uploadItem);
+        })
     }
     finally {
         
