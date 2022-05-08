@@ -45,6 +45,13 @@ async function run() {
             const result = await perfumeCollection.findOne(query);
             res.send(result);
         });
+        // get single item by id
+        app.get('/upload/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await uploadCollection.findOne(query);
+            res.send(result);
+        });
         
         // update single item
         app.put('/perfume/:id', async (req, res) => {
@@ -69,12 +76,19 @@ async function run() {
             const result = await perfumeCollection.deleteOne(query);
             res.send(result);
         });
+        // delete one item
+        app.delete('/upload/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await uploadCollection.deleteOne(query);
+            res.send(result);
+        });
 
         // insert item 
         app.post('/upload', async (req, res) => {
             const newItem = req.body;
             const tokenInfo = req.headers.authorization;
-            const [email, accessToken] = tokenInfo.split(" ")
+            const [email, accessToken] = tokenInfo.split(" ");
             const decoded = tokenVerify(accessToken)
             if (email === decoded.email) {
                 const result = await uploadCollection.insertOne(newItem);
